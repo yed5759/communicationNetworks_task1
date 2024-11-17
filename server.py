@@ -21,7 +21,7 @@ def handle_txt(path):
 cache, ns = handle_txt(sys.argv[2])
 #open a socket
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.bind(('127.0.0.1', int(sys.argv[1])))
+s.bind(('', int(sys.argv[1])))
 while True:
     #wait for requests from the resolver
     data, addr = s.recvfrom(1024)
