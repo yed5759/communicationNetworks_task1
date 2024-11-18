@@ -30,6 +30,7 @@ while True:
     response = cache.get(query)
     if response:
         #return the IP
+        print("sending: ", response)
         s.sendto(response.encode(), addr)
     else:
         #the server did not find the domain so he check in the NS to find another server who has the mapping
