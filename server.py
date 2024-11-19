@@ -12,9 +12,9 @@ def handle_txt(path):
             if not line:
                 break
             parts = line.split(',')
-            addresses[parts[0]] = line
+            addresses[parts[0]] = parts[1]
             if "NS" in parts:
-                dir_ns[line] = parts[1]
+                dir_ns[parts[0]] = line
     return addresses, dir_ns
 
 
@@ -30,13 +30,12 @@ while True:
     response = cache.get(query)
     if response:
         #return the IP
-        print("sending: ", response)
         s.sendto(response.encode(), addr)
     else:
         #the server did not find the domain so he check in the NS to find another server who has the mapping
         for key in ns.keys():
             if key in query:
-                s.sendto((query + ' ' + ns[key]).encode(), addr)
+                s.sendto(ns[key].encode(), addr)
                 break
         else:
             #return domain not found
