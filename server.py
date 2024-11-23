@@ -8,7 +8,7 @@ def handle_txt(path):
     dir_ns = {}
     with open(path, 'r') as zone_txt:
         while True:
-            line = zone_txt.readline()
+            line = zone_txt.readline().strip()
             if not line:
                 break
             parts = line.split(',')

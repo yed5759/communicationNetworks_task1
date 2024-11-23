@@ -39,13 +39,13 @@ s.bind(('', int(sys.argv[1])))
 #handle the program args
 serverAddr = (sys.argv[2], int(sys.argv[3]))
 cache_dict = {}
-seconds = int(sys.argv[4])
-
+seconds = int(sys.argv[3])
+clientAddr = []
 while True:
-
     # wait for requests from the client
     data, addr = s.recvfrom(1024)
     query = data.decode().strip()
+    clientAddr.append(addr)
 
     # check the caches
     response = cache_dict.get(query)
@@ -58,11 +58,18 @@ while True:
         response = handle_response_from_server(data)
 
     #the father server returns ip of type NS
-    if "NS" == response.record_type:
+    while "NS" == response.record_type:
         serverAddr = response.ip
-        continue
+        s.sendto(query.encode(), serverAddr)
+        data, addr = s.recvfrom(1024)
+        query = data.decode().strip()
+        clientAddr.append(addr)
+        # check the caches
+        response = cache_dict.get(query)
+        if not response or response.is_expired(seconds):
+            response = handle_response_from_server(data)
 
     #return response.domain to client
     serverAddr = (sys.argv[2], int(sys.argv[3]))
-    s.sendto(response.domain.encode(), addr)
+    s.sendto(response.domain.encode(), clientAddr[0])
 
