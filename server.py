@@ -12,7 +12,7 @@ def handle_txt(path):
             if not line:
                 break
             parts = line.split(',')
-            addresses[parts[0]] = parts[1]
+            addresses[parts[0]] = line
             if "NS" in parts:
                 dir_ns[parts[0]] = line
     return addresses, dir_ns

@@ -17,6 +17,8 @@ class EntryCache:
 
 def handle_response_from_server(data):
     #decode the data
+    print("new cache data: " + data.decode())
+
     split = data.decode().strip()
     split = split.split(',')
 
@@ -27,9 +29,17 @@ def handle_response_from_server(data):
     #create an entry and put in the cache
     else:
         ip = split[1].split(':')
-        entry = EntryCache(split[0], (ip[0], int(ip[1])), split[2])
+        if len(ip) == 2:
+            entry = EntryCache(split[0], (ip[0], int(ip[1])), split[2])
+        else:
+            entry = EntryCache(split[0], ip[0], split[2])
 
     cache_dict[split[0]] = entry
+    print("cache:")
+    for key, value in cache_dict.items():
+        print(f"{key}: {value.domain}, {value.ip}, {value.record_type}")
+    print("--------------------")
+
     return entry
 
 #create and bind the socket
@@ -61,15 +71,18 @@ while True:
     while "NS" == response.record_type:
         serverAddr = response.ip
         s.sendto(query.encode(), serverAddr)
+        print(query)
+
         data, addr = s.recvfrom(1024)
         query = data.decode().strip()
         clientAddr.append(addr)
         # check the caches
         response = cache_dict.get(query)
+        print(data.decode())
         if not response or response.is_expired(seconds):
             response = handle_response_from_server(data)
 
     #return response.domain to client
     serverAddr = (sys.argv[2], int(sys.argv[3]))
-    s.sendto(response.domain.encode(), clientAddr[0])
+    s.sendto(response.ip.encode(), clientAddr[0])
 
